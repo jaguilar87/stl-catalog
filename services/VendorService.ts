@@ -8,7 +8,10 @@ export class VendorService {
   constructor(rawFolderString: string) {
     this.rawFolderString = rawFolderString;
 
-    const [, name, tags] = /^(.+) - (.*)$/.exec(this.rawFolderString) ?? [];
+    const [, name, tags] = /^(.+) - (.*)$/.exec(this.rawFolderString) ?? [
+      '',
+      rawFolderString,
+    ];
     this.name = slugify(name);
     this.tags = tags ? new Set(tags.split(' ')) : new Set();
   }

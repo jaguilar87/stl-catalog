@@ -7,10 +7,10 @@ import { COMMANDS } from '@/utils/constants';
 
 type PropTypes = {
   path: string;
-  className?: string;
+  height?: string;
 };
 
-export function Gallery({ path, className = 'h-[600px]' }: PropTypes) {
+export function Gallery({ path, height }: PropTypes) {
   const [isLoading, setisLoading] = React.useState<boolean>(true);
   const [images, setImages] = React.useState<string[]>([]);
   const { socket } = useWs();
@@ -31,13 +31,17 @@ export function Gallery({ path, className = 'h-[600px]' }: PropTypes) {
   }
 
   return (
-    <div className={className}>
-      <Carousel>
-        {images.map((image) => (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img key={image} src={`/api/image?path=${image}`} alt="..." />
-        ))}
-      </Carousel>
-    </div>
+    <Carousel>
+      {images.map((image) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={image}
+          src={`/api/image?path=${image}`}
+          alt="..."
+          loading="lazy"
+          style={{ maxHeight: height, maxWidth: '100%', margin: '0 auto' }}
+        />
+      ))}
+    </Carousel>
   );
 }

@@ -1,14 +1,18 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import ss from 'string-similarity';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Radio,
-  TextField,
   Button,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  Paper,
+  Radio,
+  RadioGroup,
+  TextField,
 } from '@mui/material';
 import { HiFolderOpen } from 'react-icons/hi2';
 
@@ -96,6 +100,8 @@ export function MergerModal() {
     );
   }, [firstVendor, nextVendor, socket]);
 
+  React.useEffect(() => console.log(firstVendor), [firstVendor]);
+
   if (!isOpen()) return null;
 
   if (!firstVendor) {
@@ -103,47 +109,43 @@ export function MergerModal() {
       <Dialog open={isOpen()} onClose={close}>
         <DialogTitle>Merge Vendors</DialogTitle>
         <DialogContent>
-          <div className="space-y-6 columns-2">
-            <div>
-              <p>There is no suspicious vendors. Nice!</p>
-            </div>
-          </div>
+          <p>There is no suspicious vendors. Nice!</p>
         </DialogContent>
       </Dialog>
     );
   }
 
   return (
-    <Dialog open={isOpen()} onClose={close}>
-      <DialogTitle>Merge Vendors</DialogTitle>
+    <Dialog open={isOpen()} onClose={close} fullWidth maxWidth="xl">
+      <DialogTitle>Merge {sussyVendors.length} Vendors</DialogTitle>
       <DialogContent>
-        <div className="flex w-full flex-row gap-4">
-          <div className="w-full">
-            <p>There is {sussyVendors.length} suspicious vendors.</p>
-            <div className="flex bg-gray-900 text-gray-200 p-2 text-center text-xl border font-bold">
-              <div className="grow">
-                <span className="mr-1">
-                  {firstVendor?.label ?? firstVendor?.rawFolderString}
-                </span>
-                <sup className="inline-flex gap-1">
-                  {Array.from(firstVendor!.tags).map((tag) => (
-                    <Tag key={tag} tag={tag} />
-                  ))}
-                </sup>
-              </div>
-              <a href="#" onClick={() => explore(firstVendor!.rawFolderString)}>
-                <HiFolderOpen className="h-8" />
-              </a>
-            </div>
-
-            <Gallery
-              path={firstVendor!.rawFolderString}
-              className="h-72 w-72 mx-auto mt-2"
-            />
-          </div>
-          <div className="w-full">
+        <Grid container spacing={4}>
+          <Grid item width={'50%'} height={'300px'}>
+            <Gallery path={firstVendor!.rawFolderString} height="600px" />
+          </Grid>
+          <Grid item width={'50%'}>
+            <Grid container spacing={2}>
+              <Grid item>
+                {firstVendor?.label || firstVendor?.rawFolderString}
+              </Grid>
+              {Array.from(firstVendor!.tags).map((tag) => (
+                <Grid item key={tag}>
+                  <Tag tag={tag} />
+                </Grid>
+              ))}
+              <Grid item>
+                <IconButton
+                  onClick={() => explore(firstVendor!.rawFolderString)}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  <HiFolderOpen />
+                </IconButton>
+              </Grid>
+            </Grid>
             <legend>New Tags (Space separated):</legend>
             <TextField
+              fullWidth
+              size="small"
               id="newTags"
               onKeyUp={(e) => {
                 if (e.key === 'Enter') {
@@ -151,10 +153,11 @@ export function MergerModal() {
                 }
               }}
               disabled={isLoading}
+              sx={{ mb: 2 }}
             />
-            <legend className="mt-2">Merge with:</legend>
-            <div className="bg-gray-900 text-gray-200 p-2 mt-0 border border-gray-500 flex flex-col h-60 overflow-y-scroll">
-              <fieldset id="mergeWith">
+            <legend>Merge with:</legend>
+            <Paper sx={{ overflowY: 'scroll', height: 'calc(100vh - 340px)' }}>
+              <RadioGroup name="mergeWith">
                 <div className="flex gap-1 w-full">
                   <Radio
                     name="mergeWith"
@@ -179,10 +182,10 @@ export function MergerModal() {
                     </a>
                   </div>
                 ))}
-              </fieldset>
-            </div>
-          </div>
-        </div>
+              </RadioGroup>
+            </Paper>
+          </Grid>
+        </Grid>
       </DialogContent>
       <DialogActions>
         <Button className="ml-auto" onClick={merge} disabled={isLoading}>
